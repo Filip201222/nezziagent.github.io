@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nezzi Agent – TikTok Content Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f3ee;
+      --accent: #fe2c55;
+      --accent2: #25f4ee;
+      --gray: #1a1a1a;
+      --muted: #666;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.4rem;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    nav ul {
+      display: flex; gap: 36px; list-style: none;
+    }
+    nav ul a {
+      color: rgba(245,243,238,0.6);
+      text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-weight: 500;
+      transition: opacity 0.2s !important;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(254,44,85,0.12) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(37,244,238,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem; color: rgba(245,243,238,0.7);
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(245,243,238,0.55);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      font-weight: 300;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .btn-tiktok {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--white);
+      color: var(--black);
+      padding: 16px 32px;
+      border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 40px rgba(254,44,85,0.2);
+    }
+    .btn-tiktok:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(254,44,85,0.35);
+    }
+    .btn-tiktok svg { width: 22px; height: 22px; }
+    .btn-secondary {
+      display: flex; align-items: center; gap: 8px;
+      background: transparent;
+      color: rgba(245,243,238,0.7);
+      padding: 16px 28px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.4);
+      color: var(--white);
+    }
+
+    /* STATS */
+    .stats {
+      display: flex; gap: 0; justify-content: center;
+      margin-top: 80px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+    .stat {
+      padding: 28px 48px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      color: var(--white);
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 120px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 64px;
+      max-width: 500px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+    }
+    .feature-card {
+      background: var(--gray);
+      padding: 40px 36px;
+      transition: background 0.2s;
+    }
+    .feature-card:hover { background: #222; }
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(254,44,85,0.1);
+      border: 1px solid rgba(254,44,85,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      font-size: 1.4rem;
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .feature-card p {
+      font-size: 0.9rem;
+      color: rgba(245,243,238,0.5);
+      line-height: 1.7;
+    }
+
+    /* LOGIN SECTION */
+    .login-section {
+      padding: 100px 24px;
+      text-align: center;
+      background: var(--gray);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .login-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .login-section p {
+      color: rgba(245,243,238,0.5);
+      margin-bottom: 40px;
+      font-size: 1rem;
+    }
+    .login-box {
+      display: inline-block;
+      background: var(--black);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 48px 56px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .login-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .login-box p {
+      font-size: 0.85rem;
+      color: rgba(245,243,238,0.4);
+      margin-bottom: 32px;
+    }
+    .btn-login {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      border: none; cursor: pointer;
+    }
+    .btn-login:hover { opacity: 0.88; transform: translateY(-1px); }
+    .login-note {
+      font-size: 0.75rem !important;
+      color: rgba(245,243,238,0.25) !important;
+      margin-top: 16px !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* HOW IT WORKS */
+    .how {
+      padding: 120px 48px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .steps {
+      display: flex; flex-direction: column; gap: 0;
+      margin-top: 64px;
+    }
+    .step {
+      display: flex; gap: 32px; align-items: flex-start;
+      padding: 40px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem; font-weight: 800;
+      color: rgba(255,255,255,0.06);
+      min-width: 60px; line-height: 1;
+    }
+    .step-content h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step-content p {
+      color: rgba(245,243,238,0.5);
+      line-height: 1.7; font-size: 0.95rem;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 48px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    footer .logo { font-size: 1.1rem; }
+    .footer-links {
+      display: flex; gap: 32px;
+    }
+    .footer-links a {
+      color: rgba(245,243,238,0.4);
+      text-decoration: none; font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy {
+      color: rgba(245,243,238,0.25);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 700px) {
+      nav { padding: 16px 20px; }
+      nav ul { display: none; }
+      .features { padding: 80px 20px; }
+      .how { padding: 80px 20px; }
+      footer { padding: 32px 20px; flex-direction: column; }
+      .stats { flex-direction: column; }
+      .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .stat:last-child { border-bottom: none; }
+      .login-box { padding: 36px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">nezzi<span>.</span>agent</a>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#login" class="nav-cta">Login with TikTok</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    TikTok Content Management Platform
+  </div>
+  <h1>Manage your<br><em>TikTok</em><br>like a pro</h1>
+  <p class="hero-sub">Schedule posts, track analytics, and grow your audience — all from one powerful dashboard built for creators.</p>
+  <div class="hero-actions">
+    <a href="#login" class="btn-tiktok">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+      </svg>
+      Login with TikTok
+    </a>
+    <a href="#features" class="btn-secondary">See features →</a>
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">10<span>k+</span></div>
+      <div class="stat-label">Creators</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2<span>M+</span></div>
+      <div class="stat-label">Videos Posted</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">98<span>%</span></div>
+      <div class="stat-label">Uptime</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <p class="section-label">Features</p>
+  <h2 class="section-title">Everything you need to grow on TikTok</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <h3>Schedule Posts</h3>
+      <p>Plan and schedule your TikTok videos in advance. Set the perfect time for maximum reach and engagement.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Analytics Dashboard</h3>
+      <p>Track views, likes, comments and follower growth with detailed charts and performance insights.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🚀</div>
+      <h3>Direct Publishing</h3>
+      <p>Publish videos directly to TikTok with one click. No need to manually upload on the app.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👤</div>
+      <h3>Profile Management</h3>
+      <p>View and manage your TikTok profile information, stats and content library in one place.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📂</div>
+      <h3>Content Library</h3>
+      <p>Browse all your uploaded videos, track performance and manage your entire content archive.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>Secure & Private</h3>
+      <p>We use TikTok's official API. Your data is never stored beyond what's needed to provide the service.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LOGIN SECTION -->
+<section class="login-section" id="login">
+  <h2>Start managing your TikTok today</h2>
+  <p>Connect your TikTok account securely in seconds</p>
+  <div class="login-box">
+    <h3>Welcome to Nezzi Agent</h3>
+    <p>Sign in with your TikTok account to get started</p>
+    <a href="/auth/tiktok" class="btn-login">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+      </svg>
+      Continue with TikTok
+    </a>
+    <p class="login-note">By continuing, you agree to our <a href="terms.html" style="color:rgba(245,243,238,0.4)">Terms of Service</a> and <a href="privacy.html" style="color:rgba(245,243,238,0.4)">Privacy Policy</a></p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <p class="section-label">How it works</p>
+  <h2 class="section-title">Get started in 3 simple steps</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Connect your TikTok account</h3>
+        <p>Click "Login with TikTok" and authorize Nezzi Agent to access your TikTok profile. We use TikTok's official Login Kit — secure and fast.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Upload and schedule your content</h3>
+        <p>Upload your videos to Nezzi Agent and choose when to publish. Schedule posts for peak engagement times automatically.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Track your growth</h3>
+        <p>Monitor your performance with our analytics dashboard. See what content works and grow your audience faster.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="logo">nezzi<span>.</span>agent</a>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="mailto:nezziagent@gmail.com">Contact</a>
+  </div>
+  <p class="footer-copy">© 2025 Nezzi Agent. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
